@@ -1,20 +1,25 @@
-using GLPKMathProgInterface
 using JuMP
+using GLPKMathProgInterface
+using MathProgBase
 
-FILE_NAME = "instances/cmb01"
+FILE_NAME = "D:/Documentos/GitHub/CMB-SimulatedAnnealing/instances/cmb01"
 
 file = open(FILE_NAME)
 
-lines = readLines(file)
+lines = readlines(file)
+
+close(file)
+
 firstLine = split(lines[1])
-    n = parse(Int64, firstLine[1]) #get number os vertex
-    e = parse(Int64, firstLine[2]) #get number of edges
-    k = parse(Int64, firstLine[3]) #get number of colors
+n = parse(Int64, firstLine[1]) #get number os vertex
+e = parse(Int64, firstLine[2]) #get number os edges
+k = parse(Int64, firstLine[3]) #get number of colors
+w = zeros(n)
 
 secondLine = split(lines[2])
-    for i=1:n
-        w[i] = parse(Float64, thirdLine[i]) #vertex weights
-    end
+for i=1:n
+    w[i] = parse(Float64, secondLine[i]) #vertex weights
+end
 
 E = zeros(n,n)
 for lineIndex=3:e #get graph edges(u,v)
@@ -24,21 +29,25 @@ for lineIndex=3:e #get graph edges(u,v)
     E[u,v] = 1
 end
 
-m = Model(solver=GLPKSolverMIP(msg_lev=GLPK.MSG_ALL, tm_lim=1, out_frq=1))
+m = Model(solver=GLPKSolverMIP(tm_lim=1, out_frq=1))
 
 @variable(m, x[1:n, 1:k], Bin)
-@variable(m, b[1:k]) #biggest weight of the colors
+@variable(m, b) #biggest weight of the colors
 
 @objective(m, Min, b)
 
-@constraints(m,sum([j in 1:k], x[i,j] for i in 1:n) = 1) #(1)
+@constraint(m, [i=1:n], sum(x[i,j] for j=1:k) == 1) #(1)
+
 for j=1:k
     for u=1:n
         for v=1:n
-        if E[u, v] == 1
-            @constraint(m, x[u, c] + x[v, c] <= 1) #(2)
+            if E[u, v] == 1
+                @constraint(m, x[u, k] + x[v, k] <= 1) #(2)
+            end
+        end
     end
 end
-@constraints(m >= sum([j in 1:k], x[i,j] * w[i] for i in 1:n)) #(3)
+
+@constraint(m, [j=1:k], b >= sum(x[i,j] * w[i] for i=1:n)) #(3)
 
 solve(m)    
