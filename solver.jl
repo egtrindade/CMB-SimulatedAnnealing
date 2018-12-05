@@ -2,7 +2,7 @@ using JuMP
 using GLPKMathProgInterface
 using MathProgBase
 
-FILE_NAME = "D:/Documentos/GitHub/CMB-SimulatedAnnealing/instances/cmb01"
+FILE_NAME = "instances/cmb01"
 
 file = open(FILE_NAME)
 
@@ -22,14 +22,14 @@ for i=1:n
 end
 
 E = zeros(n,n)
-for lineIndex=3:e #get graph edges(u,v)
-    currentLine = split(lines[lineIndex])
+for i=3:(e+2) #get graph edges(u,v)
+    currentLine = split(lines[i])
     u = parse(Int64, currentLine[1]) + 1
     v = parse(Int64, currentLine[2]) + 1
     E[u,v] = 1
 end
 
-m = Model(solver=GLPKSolverMIP(tm_lim=1, out_frq=1))
+m = Model(solver=GLPKSolverMIP(tm_lim=3600000))
 
 @variable(m, x[1:n, 1:k], Bin)
 @variable(m, b) #biggest weight of the colors

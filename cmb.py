@@ -20,13 +20,12 @@ def get_instance(filename):
             e = int(instance[1]) #number os edges
             k = int(instance[2]) #number of colors
             E = [[0 for x in range(n)] for y in range(n)]
-            print("n: {}, e: {}, k: {}".format(n,e,k)) 
 
         if current_line == 2:
-            for i in range(0, k):
+            for i in range(0, n):
                 w.append(float(instance[i]))
 
-        if current_line > 2:
+        if (current_line > 2) and (current_line <= (e+2)):
             u = int(instance[0])
             v = int(instance[1])
             E[u][v] = 1
@@ -34,9 +33,26 @@ def get_instance(filename):
         current_line = current_line + 1
         
     file.close()
-    print("Terminou de ler instancia")
 
     return n, e, k, w, E
+
+def print_instance(n, e, k, w, E):
+    print("----------------------- ")
+    print(" Instance:")
+    print(" ")
+    print(" n: {}, e: {}, k: {}".format(n,e,k)) 
+    print(" ")
+
+    for i in range(0, n):
+        print(" vertex {} weight: {}".format(i,w[i]))
+
+    print(" ")
+    print(" {} edges:".format(e))
+    for u in range(0,n):
+        for v in range(0,n):
+            if E[u][v] == 1:
+                print(" [{}][{}]".format(u,v))
+    print("----------------------- ")
 
 def gen_rand_neighbor(self, current_state):
         ep = self.EPSILON
@@ -88,4 +104,5 @@ def simulated_annealing(self, weights):
 
 
 
-get_instance(INSTANCE_FILE)
+n, e, k, w, E = get_instance(INSTANCE_FILE)
+print_instance(n, e, k, w, E)
