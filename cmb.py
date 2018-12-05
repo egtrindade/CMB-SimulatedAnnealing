@@ -85,7 +85,7 @@ def is_feasible(solution, num_vertices, num_edges, num_colors, edges):
 
     return True
 
-def initial_solution(num_vertices, num_edges, num_colors, edges):
+def initial_solution(num_vertices, num_edges, num_colors):
     solution = [[0 for x in range(num_vertices)] for y in range(num_vertices)]
 
     for vertex in range(0,num_vertices):
@@ -94,8 +94,8 @@ def initial_solution(num_vertices, num_edges, num_colors, edges):
 
     return solution
 
-def print_initial_solution(solution, num_vertices, num_colors):
-    print("--- Initial Solution --- ")
+def print_solution(solution, num_vertices, num_colors):
+    print("------- Solution ------- ")
     print(" ")
 
     for vertex in range(0,num_vertices):
@@ -104,9 +104,44 @@ def print_initial_solution(solution, num_vertices, num_colors):
                 print(" vertex {} color = {}".format(vertex,color))
     print(" ")
 
+def get_solution_value(solution, num_vertices, num_edges, num_colors, weights):
+    values = [0.0, 0.0, 0.0]
 
-def gen_rand_neighbor(solution, num_vertices, num_edges, num_colors, weights, edges):
-        neighbor = copy.deepcopy(solution) #ver copy.deepcopy()
+    for color in range(0,num_colors):
+        for vertex in range(0,num_vertices):
+            if solution[vertex][color] == 1:
+                values[color]= values[color] + weights[vertex]
+
+    return max(values), values
+
+def print_color_values(color_values, num_colors):
+    print("----- Color Values ----- ")
+    print(" ")
+
+    print(" Max color value:")
+    print(" " + str(max(color_values)) + "\n ")
+
+    for color in range(0,num_colors):
+        print(" Value of color {} = {}".format(color,color_values[color]))
+    print(" ")
+        
+def gen_rand_neighbor(solution, num_vertices, num_colors):
+        neighbor = copy.deepcopy(solution)
+        found = 0
+        color = 0
+
+        vertex = random.randint(0,num_vertices-1)
+        new_color = random.randint(0,num_colors-1)
+        
+        while found == 0:
+            if neighbor[vertex][color] == 1:
+                found = 1
+                while new_color == color:
+                    new_color = random.randint(0,num_colors-1)      
+                neighbor[vertex][color] = 0
+                neighbor[vertex][new_color] = 1
+            
+            color = color + 1
 
         return neighbor
 
@@ -155,8 +190,16 @@ def cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, initial_prob,
 
     start = time()
 
-    solution = initial_solution(num_vertices, num_edges, num_colors, edges)
-    print_initial_solution(solution, num_vertices, num_colors)
+    solution = initial_solution(num_vertices, num_edges, num_colors)
+    print_solution(solution, num_vertices, num_colors)
+
+    solution_value, color_values = get_solution_value(solution,num_vertices, num_edges, num_colors, weights)
+    print_color_values(color_values, num_colors)
+
+    neighbor = gen_rand_neighbor(solution,num_vertices,num_colors)
+    neighbor_value, neighbor_color_values = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
+    print_color_values(neighbor_color_values, num_colors)
+    print_solution(neighbor, num_vertices, num_colors)
 
     end = time()
     time_elapsed = end - start
@@ -172,7 +215,7 @@ pi = INITIAL_PROB
 pf = FINAL_PROB
 
 random.seed(seed)
-num_vertices, num_edges, num_colors, weights, edges = get_instance(INSTANCE_FILE)
+num_vertices, num_edges, num_colors, weights, edges = get_instance(instance)
 print_instance(num_vertices, num_edges, num_colors, weights, edges)
 solution, best_value, time_elapsed = cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, pi, pf)
 write_output(out_file,instance,num_vertices,num_edges,r,I,pi,pf,time_elapsed,seed,best_value,solution)
