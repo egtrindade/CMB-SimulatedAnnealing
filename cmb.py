@@ -147,7 +147,7 @@ def print_color_values(color_values, num_colors):
         print(" Value of color {} = {}".format(color,color_values[color]))
     print(" ")
         
-def gen_rand_neighbor(solution, num_vertices, num_colors):
+def get_rand_neighbor(solution, num_vertices, num_colors):
     neighbor = copy.deepcopy(solution)
 
     vertex = random.randint(0,num_vertices-1)
@@ -163,46 +163,46 @@ def gen_rand_neighbor(solution, num_vertices, num_colors):
 
     return neighbor
 
-def initial_temperature(solution, temperature, r, I, initial_prob, num_vertices, num_edges, num_colors, weights, edges):
-    initial_temp = temperature
+def initial_temperature(solution, temperature, r, I, initial_prob, num_vertices, num_edges, num_colors, weights):
+    current_value = get_solution_value(solution,num_vertices, num_edges, num_colors, weights)
+    aprox_temp = temperature
+    aprox_prob = 1
 
-    return initial_temp
-
-def simulated_annealing(num_vertices, num_edges, num_colors, weights, edges):
-    dec_temp = 0.93
-    num_iter = 20
-        
-    current_value = self.run_episode(weights)
-    current_state = weights.copy()
-
-    print("Value: ", current_value)
-
-    temperature = 100.0
-
-    while True:
-        temperature *= dec_temp
+    while(temperature > 0.0001):
+        accepted_moves = 0
+        moves_tried = 0
+        for i in range(0,I):
+            neighbor = get_rand_neighbor(solution,num_vertices,num_colors)
+            candidate_value = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
             
-        print("Temperature: ", temperature)
-        print("Value: ", current_value)
-        if temperature < 0.15:
-            return current_state
-            
-        for i in range(1,num_iter):
-            candidate_state = self.genRandNeighbor(current_state)
-            candidate_value = self.run_episode(candidate_state)
+            delta =  candidate_value - current_value 
 
-            delta = candidate_value - current_value
-
-            if delta > 0:
-                current_state = candidate_state.copy()
+            if delta <= 0:
+                solution = neighbor
                 current_value = candidate_value
             else:
-                prob = math.exp(delta/temperature)
-                r = random.random()
-                if r < prob:
-                    current_state = candidate_state.copy()
+                moves_tried = moves_tried + 1
+                prob = math.exp((-delta)/temperature)
+                rand = random.random()
+                if rand < prob:
+                    accepted_moves = accepted_moves + 1
+                    solution = neighbor
                     current_value = candidate_value
+        if moves_tried > 0:
+            if ((initial_prob - 0.005) <= (accepted_moves/moves_tried)) and ((accepted_moves/moves_tried) <= (initial_prob + 0.005)): #approximately equal to the initial probability
+                return temperature
+            else:
+                if abs((accepted_moves/moves_tried) - initial_prob) < abs(aprox_prob - initial_prob):
+                    aprox_temp = temperature
+                    aprox_prob = (accepted_moves/moves_tried)
+        temperature = temperature * r	
 
+    return aprox_temp
+
+def simulated_annealing(solution, temperature, r, I, initial_prob, num_vertices, num_edges, num_colors, weights):
+
+    return solution
+        
 def cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, initial_prob, final_prob):
     best_value = 0
 
@@ -217,7 +217,7 @@ def cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, initial_prob,
     print(" Conflicts = {}".format(num_conflicts))
 
     print("************ Neighbor ************\n")
-    neighbor = gen_rand_neighbor(solution,num_vertices,num_colors)
+    neighbor = get_rand_neighbor(solution,num_vertices,num_colors)
 
     neighbor_value, neighbor_color_values = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
     print_solution(neighbor, num_vertices, num_colors)
