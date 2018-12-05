@@ -2,7 +2,7 @@ Instance File:
   instances/my
 
 Time:
-  0.00299072265625
+  0.012965202331542969
 
 Parameters:
   Cooling Factor r: 0.99
@@ -11,8 +11,11 @@ Parameters:
   Final probability: 0.05
   Seed: 5
 
-Value:
-  0
+Initial Solution Value:
+  32.6
+
+Final Solution Value:
+  60.400000000000006
 
 Solution:
   Vertex 0 color = 1
