@@ -26,9 +26,9 @@ def write_output(out_filename,instance_filename, num_vertices, num_edges, r, I, 
     out_file.write("\nValue:\n  " + str(best_value) + "\n")
     out_file.write("\nSolution:\n")
     for vertex in range(0,num_vertices):
-        for color in range(0,num_colors):
-            if solution[vertex][color] == 1:
-                out_file.write("  Vertex {} color = {}\n".format(vertex,color))
+        color = get_vertex_color(vertex,solution,num_vertices,num_edges)
+        if solution[vertex][color] == 1:
+            out_file.write("  Vertex {} color = {}\n".format(vertex,color))
     out_file.close()
 
 def get_instance(filename):
@@ -81,7 +81,23 @@ def print_instance(num_vertices, num_edges, num_colors, weights, edges):
                 print(" [{}][{}]".format(u,v))
     print(" ")
 
+def get_vertex_color(vertex, solution, num_vertices, num_colors):
+    found = 0
+    color = 0
+ 
+    while found == 0:
+        if solution[vertex][color] == 1:
+            found = 1
+        else:   
+            color = color + 1
+
+    return color
+
+
 def is_feasible(solution, num_vertices, num_edges, num_colors, edges):
+    #for u in range(0,num_vertices):
+        #for v in range(0,num_vertices):
+            #if edges[u][v] == 1:
 
     return True
 
@@ -99,9 +115,9 @@ def print_solution(solution, num_vertices, num_colors):
     print(" ")
 
     for vertex in range(0,num_vertices):
-        for color in range(0,num_colors):
-            if solution[vertex][color] == 1:
-                print(" vertex {} color = {}".format(vertex,color))
+        color = get_vertex_color(vertex,solution,num_vertices,num_colors)
+        print(" vertex {} color = {}".format(vertex,color))
+
     print(" ")
 
 def get_solution_value(solution, num_vertices, num_edges, num_colors, weights):
@@ -110,7 +126,7 @@ def get_solution_value(solution, num_vertices, num_edges, num_colors, weights):
     for color in range(0,num_colors):
         for vertex in range(0,num_vertices):
             if solution[vertex][color] == 1:
-                values[color]= values[color] + weights[vertex]
+                values[color] = values[color] + weights[vertex]
 
     return max(values), values
 
@@ -126,24 +142,20 @@ def print_color_values(color_values, num_colors):
     print(" ")
         
 def gen_rand_neighbor(solution, num_vertices, num_colors):
-        neighbor = copy.deepcopy(solution)
-        found = 0
-        color = 0
+    neighbor = copy.deepcopy(solution)
 
-        vertex = random.randint(0,num_vertices-1)
-        new_color = random.randint(0,num_colors-1)
-        
-        while found == 0:
-            if neighbor[vertex][color] == 1:
-                found = 1
-                while new_color == color:
-                    new_color = random.randint(0,num_colors-1)      
-                neighbor[vertex][color] = 0
-                neighbor[vertex][new_color] = 1
-            
-            color = color + 1
+    vertex = random.randint(0,num_vertices-1)
+    color = get_vertex_color(vertex,neighbor,num_vertices,num_edges)
+    
+    new_color = random.randint(0,num_colors-1)
 
-        return neighbor
+    while new_color == color:
+        new_color = random.randint(0,num_colors-1)      
+    
+    neighbor[vertex][color] = 0
+    neighbor[vertex][new_color] = 1
+
+    return neighbor
 
 def initial_temperature(solution, temperature, r, I, initial_prob, num_vertices, num_edges, num_colors, weights, edges):
     initial_temp = temperature
