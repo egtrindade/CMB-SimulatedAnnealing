@@ -1,14 +1,17 @@
 import random
 import math
 import sys
+import time
+import copy
 
-INSTANCE_FILE = sys.argv[1]
-SOLUTION_FILE = sys.argv[2] 
+SOLUTION_FILE = sys.argv[1] 
+INSTANCE_FILE = sys.argv[2]
+SEED = sys.argv[3]
 
 def get_instance(filename):
     file = open(filename, 'r')
 
-    w = [] #vertex weights
+    weights = []
 
     current_line = 1
 
@@ -16,54 +19,71 @@ def get_instance(filename):
         instance = line.strip().split()
 
         if current_line == 1:
-            n = int(instance[0]) #number os vertex
-            e = int(instance[1]) #number os edges
-            k = int(instance[2]) #number of colors
-            E = [[0 for x in range(n)] for y in range(n)]
+            num_vertices = int(instance[0]) 
+            num_edges = int(instance[1]) 
+            num_colors = int(instance[2]) 
+            edges = [[0 for x in range(num_vertices)] for y in range(num_vertices)]
 
         if current_line == 2:
-            for i in range(0, n):
-                w.append(float(instance[i]))
+            for i in range(0, num_vertices):
+                weights.append(float(instance[i]))
 
-        if (current_line > 2) and (current_line <= (e+2)):
+        if (current_line > 2) and (current_line <= (num_edges+2)):
             u = int(instance[0])
             v = int(instance[1])
-            E[u][v] = 1
+            edges[u][v] = 1
             
         current_line = current_line + 1
         
     file.close()
 
-    return n, e, k, w, E
+    return num_vertices, num_edges, num_colors, weights, edges
 
-def print_instance(n, e, k, w, E):
-    print("----------------------- ")
-    print(" Instance:")
+def print_instance(num_vertices, num_edges, num_colors, weights, edges):
+    print("------- Instance ------- ")
     print(" ")
-    print(" n: {}, e: {}, k: {}".format(n,e,k)) 
+    print(" vertices: {} ".format(num_vertices)) 
+    print(" edges: {} ".format(num_edges))
+    print(" colors: {} ".format(num_colors))
     print(" ")
 
-    for i in range(0, n):
-        print(" vertex {} weight: {}".format(i,w[i]))
+    for i in range(0, num_vertices):
+        print(" vertex {} weight: {}".format(i,weights[i]))
 
     print(" ")
-    print(" {} edges:".format(e))
-    for u in range(0,n):
-        for v in range(0,n):
-            if E[u][v] == 1:
+    print(" {} edges:".format(num_edges))
+    for u in range(0,num_vertices):
+        for v in range(0,num_vertices):
+            if edges[u][v] == 1:
                 print(" [{}][{}]".format(u,v))
-    print("----------------------- ")
+    print(" ")
 
-def gen_rand_neighbor(self, current_state):
-        ep = self.EPSILON
-        neighbor = current_state.copy()
+def is_feasible(solution, num_vertices, num_edges, num_colors, edges):
 
-        for i in range(0, len(current_state) - 1):
-            r = random.randint(0,2)
-            if r == 0:
-                neighbor[i] += ep
-            if r == 1:
-                neighbor[i] -= ep
+    return True
+
+def initial_solution(num_vertices, num_edges, num_colors, edges):
+    solution = [[0 for x in range(num_vertices)] for y in range(num_vertices)]
+
+    for vertex in range(0,num_vertices):
+        color = random.randint(0,num_colors-1)
+        solution[vertex][color] = 1
+
+    return solution
+
+def print_initial_solution(solution, num_vertices, num_colors):
+    print("--- Initial Solution --- ")
+    print(" ")
+
+    for vertex in range(0,num_vertices):
+        for color in range(0,num_colors):
+            if solution[vertex][color] == 1:
+                print(" vertex {} color = {}".format(vertex,color))
+    print(" ")
+
+
+def gen_rand_neighbor(solution, num_vertices, num_edges, num_colors, weights, edges):
+        neighbor = copy.deepcopy(solution) #ver copy.deepcopy()
 
         return neighbor
 
@@ -103,6 +123,9 @@ def simulated_annealing(self, weights):
                     current_value = candidate_value
 
 
+random.seed(SEED)
 
-n, e, k, w, E = get_instance(INSTANCE_FILE)
-print_instance(n, e, k, w, E)
+num_vertices, num_edges, num_colors, weights, edges = get_instance(INSTANCE_FILE)
+print_instance(num_vertices, num_edges, num_colors, weights, edges)
+solution = initial_solution(num_vertices, num_edges, num_colors, edges)
+print_initial_solution(solution, num_vertices, num_colors)

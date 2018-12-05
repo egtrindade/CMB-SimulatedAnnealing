@@ -2,7 +2,7 @@ using JuMP
 using GLPKMathProgInterface
 using MathProgBase
 
-FILE_NAME = "instances/my"
+FILE_NAME = "instances/cmb01"
 
 file = open(FILE_NAME)
 
@@ -48,7 +48,7 @@ for j=1:k
     end
 end
 
-@constraint(m, [j=1:k], b >= sum(x[i,j] * w[i] for i=1:n)) #(3)
+@constraint(m, [j=1:k], b >= sum(x[i,j] * w[i] for i=1:n)) #(3) 
 
 solve(m)
 
