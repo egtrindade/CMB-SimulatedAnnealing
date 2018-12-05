@@ -199,7 +199,34 @@ def initial_temperature(solution, temperature, r, I, initial_prob, num_vertices,
 
     return aprox_temp
 
-def simulated_annealing(solution, temperature, r, I, initial_prob, num_vertices, num_edges, num_colors, weights):
+def simulated_annealing(solution, temperature, r, I, final_prob, num_vertices, num_edges, num_colors, weights):
+    current_value = get_solution_value(solution,num_vertices, num_edges, num_colors, weights)
+    counter = 0
+    
+    while(counter < 5):
+        accepted_moves = 0
+        moves_tried = 0
+        for i in range(0,I):
+            neighbor = get_rand_neighbor(solution,num_vertices,num_colors)
+            candidate_value = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
+            
+            delta =  candidate_value - current_value 
+
+            if delta <= 0:
+                solution = neighbor
+                current_value = candidate_value
+            else:
+                moves_tried = moves_tried + 1
+                prob = math.exp((-delta)/temperature)
+                rand = random.random()
+                if rand < prob:
+                    accepted_moves = accepted_moves + 1
+                    solution = neighbor
+                    current_value = candidate_value
+        if moves_tried > 0:
+            if final_prob > (accepted_moves/moves_tried):
+                counter = counter + 1
+        temperature = temperature * r	
 
     return solution
         
