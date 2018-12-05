@@ -2,7 +2,7 @@ using JuMP
 using GLPKMathProgInterface
 using MathProgBase
 
-FILE_NAME = "instances/cmb01"
+FILE_NAME = "instances/my"
 
 file = open(FILE_NAME)
 
@@ -42,12 +42,21 @@ for j=1:k
     for u=1:n
         for v=1:n
             if E[u, v] == 1
-                @constraint(m, x[u, k] + x[v, k] <= 1) #(2)
-            end
+                @constraint(m, x[u, j] + x[v, j] <= 1) #(2)
+            end 
         end
     end
 end
 
 @constraint(m, [j=1:k], b >= sum(x[i,j] * w[i] for i=1:n)) #(3)
 
-solve(m)    
+solve(m)
+
+println(" Instance: $(FILE_NAME)")
+println(" Value: $(getobjectivevalue(m))")
+println(" Solution:")
+for i=1:n, j=1:k
+    if getvalue(x[i,j])==1
+        println(" Vertex $(i - 1) color = $(j - 1) ")
+    end
+end
