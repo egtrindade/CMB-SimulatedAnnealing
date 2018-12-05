@@ -107,7 +107,7 @@ def count_color_conflicts(solution, num_vertices, num_edges, num_colors, edges):
 
     return color_conflicts
 
-def initial_solution(num_vertices, num_edges, num_colors):
+def get_initial_solution(num_vertices, num_edges, num_colors):
     solution = [[0 for x in range(num_vertices)] for y in range(num_vertices)]
 
     for vertex in range(0,num_vertices):
@@ -163,8 +163,8 @@ def get_rand_neighbor(solution, num_vertices, num_colors):
 
     return neighbor
 
-def initial_temperature(solution, temperature, r, I, initial_prob, num_vertices, num_edges, num_colors, weights):
-    current_value = get_solution_value(solution,num_vertices, num_edges, num_colors, weights)
+def get_initial_temperature(solution, temperature, r, I, initial_prob, num_vertices, num_edges, num_colors, weights):
+    current_value, color_values = get_solution_value(solution,num_vertices, num_edges, num_colors, weights)
     aprox_temp = temperature
     aprox_prob = 1
 
@@ -173,7 +173,7 @@ def initial_temperature(solution, temperature, r, I, initial_prob, num_vertices,
         moves_tried = 0
         for i in range(0,I):
             neighbor = get_rand_neighbor(solution,num_vertices,num_colors)
-            candidate_value = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
+            candidate_value, color_values = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
             
             delta =  candidate_value - current_value 
 
@@ -200,15 +200,15 @@ def initial_temperature(solution, temperature, r, I, initial_prob, num_vertices,
     return aprox_temp
 
 def simulated_annealing(solution, temperature, r, I, final_prob, num_vertices, num_edges, num_colors, weights):
-    current_value = get_solution_value(solution,num_vertices, num_edges, num_colors, weights)
+    current_value, color_values = get_solution_value(solution,num_vertices, num_edges, num_colors, weights)
     counter = 0
-    
+
     while(counter < 5):
         accepted_moves = 0
         moves_tried = 0
         for i in range(0,I):
             neighbor = get_rand_neighbor(solution,num_vertices,num_colors)
-            candidate_value = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
+            candidate_value, color_values = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
             
             delta =  candidate_value - current_value 
 
@@ -231,31 +231,44 @@ def simulated_annealing(solution, temperature, r, I, final_prob, num_vertices, n
     return solution
         
 def cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, initial_prob, final_prob):
+    init_temp_temperature = 10000
+    init_temp_iterations = 100
+    
     best_value = 0
 
     start = time()
 
-    solution = initial_solution(num_vertices, num_edges, num_colors)
-    print_solution(solution, num_vertices, num_colors)
+    print(" ---- Criating initial solution")
+    initial_solution = get_initial_solution(num_vertices, num_edges, num_colors)
+    initial_value, color_values = get_solution_value(initial_solution, num_vertices, num_edges, num_colors, weights)
+    print(" ---- Finished criating initial solution\n")
+    print(" Initial solution value = " + str(initial_value))
 
-    initial_value, color_values = get_solution_value(solution,num_vertices, num_edges, num_colors, weights)
-    print_color_values(color_values, num_colors)
-    num_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
-    print(" Conflicts = {}".format(num_conflicts))
+    print("\n ---- Criating initial temperature")
+    initial_teperature = get_initial_temperature(initial_solution, init_temp_temperature, r, init_temp_iterations, initial_prob, num_vertices, num_edges, num_colors, weights)
+    print(" ---- Finished criating initial temperature\n")
 
-    print("************ Neighbor ************\n")
-    neighbor = get_rand_neighbor(solution,num_vertices,num_colors)
+    print(" ---- Criating final solution")
+    solution = simulated_annealing(initial_solution, initial_teperature, r, I, final_prob, num_vertices, num_edges, num_colors, weights)
+    print(" ---- Finished criating final solution\n")
 
-    neighbor_value, neighbor_color_values = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
-    print_solution(neighbor, num_vertices, num_colors)
-    print_color_values(neighbor_color_values, num_colors)
-    num_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
-    print(" Conflicts = {}".format(num_conflicts))
+    best_value, color_values = get_solution_value(solution, num_vertices, num_edges, num_colors, weights)
+    print(" Final solution value = " + str(best_value) + "\n")
+    # print_color_values(color_values, num_colors)
+    # num_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
+    # print(" Conflicts = {}".format(num_conflicts))
+
+    # print("************ Neighbor ************\n")
+    # neighbor = get_rand_neighbor(solution,num_vertices,num_colors)
+
+    # neighbor_value, neighbor_color_values = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
+    # print_solution(neighbor, num_vertices, num_colors)
+    # print_color_values(neighbor_color_values, num_colors)
+    # num_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
+    # print(" Conflicts = {}".format(num_conflicts))
 
     end = time()
     time_elapsed = end - start
-
-    best_value = neighbor_value
 
     return solution, initial_value, best_value, time_elapsed
 
@@ -263,10 +276,10 @@ def cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, initial_prob,
 seed = SEED
 out_file = OUTPUT_FILE
 instance = INSTANCE_FILE
-r = COOLING_FACTOR
-I = ITERATIONS
-pi = INITIAL_PROB
-pf = FINAL_PROB
+r = float(COOLING_FACTOR)
+I = int(ITERATIONS)
+pi = float(INITIAL_PROB)
+pf = float(FINAL_PROB)
 
 random.seed(seed)
 num_vertices, num_edges, num_colors, weights, edges = get_instance(instance)
