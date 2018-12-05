@@ -1,0 +1,22 @@
+Instance File:
+  instances/my
+
+Time:
+  0.0019953250885009766
+
+Parameters:
+  Cooling Factor r: 0.99
+  Instances I: 1000
+  Initial probability: 0.85
+  Final probability: 0.05
+  Seed: 5
+
+Value:
+  0
+
+Solution:
+  Vertex 0 color = 1
+  Vertex 1 color = 1
+  Vertex 2 color = 2
+  Vertex 3 color = 2
+  Vertex 4 color = 0

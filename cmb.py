@@ -1,12 +1,35 @@
 import random
 import math
 import sys
-import time
+from time import time
 import copy
 
-SOLUTION_FILE = sys.argv[1] 
+OUTPUT_FILE = sys.argv[1] 
 INSTANCE_FILE = sys.argv[2]
-SEED = sys.argv[3]
+COOLING_FACTOR = sys.argv[3]
+ITERATIONS = sys.argv[4]
+INITIAL_PROB = sys.argv[5]
+FINAL_PROB = sys.argv[6]
+SEED = sys.argv[7]
+
+def write_output(out_filename,instance_filename, num_vertices, num_edges, r, I, initial_prob, final_prob, time, seed, best_value, solution):
+    out_file = open(out_filename, "w")
+
+    out_file.write("Instance File:\n  " + instance_filename + "\n")
+    out_file.write("\nTime:\n  " + str(time_elapsed) + "\n")
+    out_file.write("\nParameters:\n")
+    out_file.write("  Cooling Factor r: " + str(r) + "\n")
+    out_file.write("  Instances I: " + str(I) + "\n")
+    out_file.write("  Initial probability: " + str(initial_prob) + "\n")
+    out_file.write("  Final probability: " + str(final_prob) + "\n")
+    out_file.write("  Seed: " + str(seed) + "\n")
+    out_file.write("\nValue:\n  " + str(best_value) + "\n")
+    out_file.write("\nSolution:\n")
+    for vertex in range(0,num_vertices):
+        for color in range(0,num_colors):
+            if solution[vertex][color] == 1:
+                out_file.write("  Vertex {} color = {}\n".format(vertex,color))
+    out_file.close()
 
 def get_instance(filename):
     file = open(filename, 'r')
@@ -87,7 +110,12 @@ def gen_rand_neighbor(solution, num_vertices, num_edges, num_colors, weights, ed
 
         return neighbor
 
-def simulated_annealing(self, weights):
+def initial_temperature(solution, temperature, r, I, initial_prob, num_vertices, num_edges, num_colors, weights, edges):
+    initial_temp = temperature
+
+    return initial_temp
+
+def simulated_annealing(num_vertices, num_edges, num_colors, weights, edges):
     dec_temp = 0.93
     num_iter = 20
         
@@ -122,10 +150,29 @@ def simulated_annealing(self, weights):
                     current_state = candidate_state.copy()
                     current_value = candidate_value
 
+def cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, initial_prob, final_prob):
+    best_value = 0
 
-random.seed(SEED)
+    start = time()
 
+    solution = initial_solution(num_vertices, num_edges, num_colors, edges)
+    print_initial_solution(solution, num_vertices, num_colors)
+
+    end = time()
+    time_elapsed = end - start
+
+    return solution, best_value, time_elapsed
+
+seed = SEED
+out_file = OUTPUT_FILE
+instance = INSTANCE_FILE
+r = COOLING_FACTOR
+I = ITERATIONS
+pi = INITIAL_PROB
+pf = FINAL_PROB
+
+random.seed(seed)
 num_vertices, num_edges, num_colors, weights, edges = get_instance(INSTANCE_FILE)
 print_instance(num_vertices, num_edges, num_colors, weights, edges)
-solution = initial_solution(num_vertices, num_edges, num_colors, edges)
-print_initial_solution(solution, num_vertices, num_colors)
+solution, best_value, time_elapsed = cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, pi, pf)
+write_output(out_file,instance,num_vertices,num_edges,r,I,pi,pf,time_elapsed,seed,best_value,solution)
