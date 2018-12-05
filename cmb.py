@@ -94,12 +94,18 @@ def get_vertex_color(vertex, solution, num_vertices, num_colors):
     return color
 
 
-def is_feasible(solution, num_vertices, num_edges, num_colors, edges):
-    #for u in range(0,num_vertices):
-        #for v in range(0,num_vertices):
-            #if edges[u][v] == 1:
+def count_color_conflicts(solution, num_vertices, num_edges, num_colors, edges):
+    color_conflicts = 0
 
-    return True
+    for u in range(0,num_vertices):
+        for v in range(0,num_vertices):
+            if edges[u][v] == 1:
+                u_color = get_vertex_color(u,solution,num_vertices,num_edges)
+                v_color = get_vertex_color(v,solution,num_vertices,num_edges)
+                if u_color == v_color:
+                    color_conflicts = color_conflicts + 1
+
+    return color_conflicts
 
 def initial_solution(num_vertices, num_edges, num_colors):
     solution = [[0 for x in range(num_vertices)] for y in range(num_vertices)]
@@ -207,11 +213,17 @@ def cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, initial_prob,
 
     solution_value, color_values = get_solution_value(solution,num_vertices, num_edges, num_colors, weights)
     print_color_values(color_values, num_colors)
+    num_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
+    print(" Conflicts = {}".format(num_conflicts))
 
+    print("************ Neighbor ************\n")
     neighbor = gen_rand_neighbor(solution,num_vertices,num_colors)
+
     neighbor_value, neighbor_color_values = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
-    print_color_values(neighbor_color_values, num_colors)
     print_solution(neighbor, num_vertices, num_colors)
+    print_color_values(neighbor_color_values, num_colors)
+    num_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
+    print(" Conflicts = {}".format(num_conflicts))
 
     end = time()
     time_elapsed = end - start

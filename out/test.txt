@@ -2,7 +2,7 @@ Instance File:
   instances/my
 
 Time:
-  0.010970354080200195
+  0.00299072265625
 
 Parameters:
   Cooling Factor r: 0.99
