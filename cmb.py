@@ -12,7 +12,7 @@ INITIAL_PROB = sys.argv[5]
 FINAL_PROB = sys.argv[6]
 SEED = sys.argv[7]
 
-def write_output(out_filename,instance_filename, num_vertices, num_edges, r, I, initial_prob, final_prob, time, seed, initial_value, best_value, solution):
+def write_output(out_filename,instance_filename, num_vertices, num_edges, r, I, initial_prob, final_prob, time, seed, initial_value, best_value, initial_num_conflicts,final_num_conflicts, solution):
     out_file = open(out_filename, "w")
 
     out_file.write("Instance File:\n  " + instance_filename + "\n")
@@ -24,7 +24,9 @@ def write_output(out_filename,instance_filename, num_vertices, num_edges, r, I, 
     out_file.write("  Final probability: " + str(final_prob) + "\n")
     out_file.write("  Seed: " + str(seed) + "\n")
     out_file.write("\nInitial Solution Value:\n  " + str(initial_value) + "\n")
+    out_file.write("\nInitial number of color conflicts:\n  " + str(initial_num_conflicts) + "\n")
     out_file.write("\nFinal Solution Value:\n  " + str(best_value) + "\n")
+    out_file.write("\nFinal number of color conflicts:\n  " + str(final_num_conflicts) + "\n")
     out_file.write("\nSolution:\n")
     for vertex in range(0,num_vertices):
         color = get_vertex_color(vertex,solution,num_vertices,num_edges)
@@ -127,14 +129,20 @@ def print_solution(solution, num_vertices, num_colors):
     print(" ")
 
 def get_solution_value(solution, num_vertices, num_edges, num_colors, weights):
-    values = [0.0, 0.0, 0.0]
+    values = []
+    
+    for i in range(0,num_colors):
+        values.append(0.0)
+
+    color_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
 
     for color in range(0,num_colors):
         for vertex in range(0,num_vertices):
             if solution[vertex][color] == 1:
-                values[color] = values[color] + weights[vertex]
+                values[color] = values[color] + weights[vertex] 
 
-    return max(values), values
+    final_value = max(values) + (color_conflicts * 10000)
+    return final_value, values
 
 def print_color_values(color_values, num_colors):
     print("----- Color Values ----- ")
@@ -241,8 +249,10 @@ def cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, initial_prob,
     print(" ---- Criating initial solution")
     initial_solution = get_initial_solution(num_vertices, num_edges, num_colors)
     initial_value, color_values = get_solution_value(initial_solution, num_vertices, num_edges, num_colors, weights)
+    initial_num_conflicts = count_color_conflicts(initial_solution,num_vertices,num_edges,num_colors,edges)
     print(" ---- Finished criating initial solution\n")
     print(" Initial solution value = " + str(initial_value))
+    print(" Initial number of color conflicts = {}".format(initial_num_conflicts))
 
     print("\n ---- Criating initial temperature")
     initial_teperature = get_initial_temperature(initial_solution, init_temp_temperature, r, init_temp_iterations, initial_prob, num_vertices, num_edges, num_colors, weights)
@@ -254,23 +264,14 @@ def cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, initial_prob,
 
     best_value, color_values = get_solution_value(solution, num_vertices, num_edges, num_colors, weights)
     print(" Final solution value = " + str(best_value) + "\n")
-    # print_color_values(color_values, num_colors)
-    # num_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
-    # print(" Conflicts = {}".format(num_conflicts))
 
-    # print("************ Neighbor ************\n")
-    # neighbor = get_rand_neighbor(solution,num_vertices,num_colors)
-
-    # neighbor_value, neighbor_color_values = get_solution_value(neighbor,num_vertices, num_edges, num_colors, weights)
-    # print_solution(neighbor, num_vertices, num_colors)
-    # print_color_values(neighbor_color_values, num_colors)
-    # num_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
-    # print(" Conflicts = {}".format(num_conflicts))
+    final_num_conflicts = count_color_conflicts(solution,num_vertices,num_edges,num_colors,edges)
+    print(" Final number of color conflicts = {}".format(final_num_conflicts))
 
     end = time()
     time_elapsed = end - start
 
-    return solution, initial_value, best_value, time_elapsed
+    return solution, initial_value, best_value, initial_num_conflicts, final_num_conflicts, time_elapsed
 
 
 seed = SEED
@@ -283,6 +284,5 @@ pf = float(FINAL_PROB)
 
 random.seed(seed)
 num_vertices, num_edges, num_colors, weights, edges = get_instance(instance)
-print_instance(num_vertices, num_edges, num_colors, weights, edges)
-solution, initial_value, best_value, time_elapsed = cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, pi, pf)
-write_output(out_file,instance,num_vertices,num_edges,r,I,pi,pf,time_elapsed,seed,initial_value,best_value,solution)
+solution, initial_value, best_value, initial_num_conflicts, final_num_conflicts, time_elapsed = cmb(num_vertices, num_edges, num_colors, weights, edges, r, I, pi, pf)
+write_output(out_file,instance,num_vertices,num_edges,r,I,pi,pf,time_elapsed,seed,initial_value,best_value,initial_num_conflicts,final_num_conflicts,solution)

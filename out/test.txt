@@ -2,24 +2,30 @@ Instance File:
   instances/my
 
 Time:
-  17.49423098564148
+  32.67871689796448
 
 Parameters:
   Cooling Factor r: 0.99
   Instances I: 1000
   Initial probability: 0.85
   Final probability: 0.05
-  Seed: 40
+  Seed: 5
 
 Initial Solution Value:
-  40.5
+  20032.6
+
+Initial number of color conflicts:
+  2
 
 Final Solution Value:
   32.6
 
+Final number of color conflicts:
+  0
+
 Solution:
-  Vertex 0 color = 1
-  Vertex 1 color = 1
+  Vertex 0 color = 0
+  Vertex 1 color = 2
   Vertex 2 color = 2
-  Vertex 3 color = 1
-  Vertex 4 color = 0
+  Vertex 3 color = 0
+  Vertex 4 color = 1
