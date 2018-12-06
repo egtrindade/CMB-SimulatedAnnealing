@@ -223,6 +223,7 @@ def simulated_annealing(solution, temperature, r, I, final_prob, num_vertices, n
             if delta <= 0:
                 solution = neighbor
                 current_value = candidate_value
+                counter = 0
             else:
                 moves_tried = moves_tried + 1
                 prob = math.exp((-delta)/temperature)
