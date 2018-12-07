@@ -1,0 +1,31 @@
+Instance File:
+  instances/my
+
+Time:
+  0.8836088180541992
+
+Parameters:
+  Cooling Factor r: 0.85
+  Instances I: 200
+  Initial probability: 0.85
+  Final probability: 0.1
+  Seed: 10
+
+Initial Solution Value:
+  30040.5
+
+Initial number of color conflicts:
+  3
+
+Final Solution Value:
+  32.6
+
+Final number of color conflicts:
+  0
+
+Solution:
+  Vertex 0 color = 2
+  Vertex 1 color = 1
+  Vertex 2 color = 1
+  Vertex 3 color = 2
+  Vertex 4 color = 0

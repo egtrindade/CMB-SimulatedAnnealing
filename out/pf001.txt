@@ -2,13 +2,13 @@ Instance File:
   instances/cmb01
 
 Time:
-  6591.4744420051575
+  7850.506317615509
 
 Parameters:
   Cooling Factor r: 0.85
   Instances I: 200
   Initial probability: 0.85
-  Final probability: 0.1
+  Final probability: 0.01
   Seed: 10
 
 Initial Solution Value:

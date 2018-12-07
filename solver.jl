@@ -2,7 +2,7 @@ using JuMP
 using GLPKMathProgInterface
 using MathProgBase
 
-FILE_NAME = "instances/cmb01"
+FILE_NAME = "instances/my"
 
 file = open(FILE_NAME)
 
